@@ -103,11 +103,25 @@ class Video:
             .with_position(("center", "center"))
             .with_duration(duration)
         )
-
         title_clip = title_clip.with_position(("center", dimensions["height"] * 0.15))
 
+        author = f'/u/{self.content["author"].strip()}'
+        author_clip = (
+            mp.TextClip(
+                text=author,
+                font="Comicy.otf",
+                color="white",
+                size=(round(dimensions["width"] / 2), None),
+                font_size=16,
+                method="caption",
+                text_align="center",
+            )
+            .with_opacity(0.7)
+            .with_duration(duration)
+        )
+        author_clip = author_clip.with_position(("right", dimensions["height"] * 0.95))
         composite = mp.CompositeVideoClip(
-            [bg_color, bg_video, content_clip, title_clip]
+            [bg_color, bg_video, content_clip, title_clip, author_clip]
         )
         if content_clip.audio:
             music = music.with_effects([mp.afx.MultiplyVolume(0.5)])
