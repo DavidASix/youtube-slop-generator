@@ -43,7 +43,7 @@ class Video:
         music_path = os.path.join(build_path, "music.mp3")
         background_path = os.path.join(build_path, "background.mp4")
         dimensions = {"height": 1280, "width": 720}
-        duration = 3
+        duration = 35
 
         music = mp.AudioFileClip(music_path)
 
@@ -62,27 +62,51 @@ class Video:
         bg_start_time = random.uniform(0, bg_video.duration - duration)
         bg_video = bg_video.with_start(-bg_start_time, False)
 
+        # TODO: Content Clip should be properly sized depending on if it's portrait or landscape
         if self.content["type"] == "image":
             content_clip = mp.ImageClip(self.content["path"])
         else:
-            content_clip = mp.VideoFileClip(self.content["path"])
-            duration = min(content_clip.duration, 60)
-            content_clip = content_clip.loop(duration=duration)
 
-        content_clip = content_clip.resized(
-            width=dimensions["width"] * 0.92
-        ).with_duration(duration)
+            content_clip = mp.VideoFileClip(self.content["path"])
+            print(content_clip.audio)
+            duration = min(content_clip.duration * 2, 60)
+            content_clip = mp.vfx.Loop().apply(content_clip)
+
+        content_clip = (
+            content_clip.resized(width=dimensions["width"] * 0.92)
+            .with_duration(duration)
+            .with_position("center")
+        )
 
         content_clip = content_clip.with_position(
             (
                 "center",
-                dimensions["height"] - content_clip.h - (dimensions["height"] * 0.20),
+                dimensions["height"] - content_clip.h - (dimensions["height"] * 0.30),
             )
         )
 
-        # content_clip = wiggle_effect(content_clip)
+        title_clip = (
+            mp.TextClip(
+                text=f"{self.title}!!",
+                font="Comicy.otf",
+                color="white",
+                stroke_color="black",
+                stroke_width=2,
+                size=(dimensions["width"], None),
+                font_size=52,
+                method="caption",
+                text_align="center",
+            )
+            .with_position(("center", "center"))
+            .with_duration(duration)
+        )
 
-        composite = mp.CompositeVideoClip([bg_color, bg_video, content_clip])
-        composite = composite.with_audio(music)
+        title_clip = title_clip.with_position(("center", dimensions["height"] * 0.15))
+
+        composite = mp.CompositeVideoClip(
+            [bg_color, bg_video, content_clip, title_clip]
+        )
+        
+        # composite = composite.with_audio(music)
         composite = composite.with_duration(duration)
         composite.write_videofile(self.output_path, fps=30, remove_temp=True)
