@@ -5,6 +5,7 @@ import numpy as np
 
 # Video Generation
 import moviepy as mp
+import re
 
 """
 Video class for generating YouTube shorts content.
@@ -85,9 +86,11 @@ class Video:
             )
         )
 
+        title = "".join(char for char in title if char.isascii())
+        title = f"{title}!"
         title_clip = (
             mp.TextClip(
-                text=f"{self.title}!!",
+                text=title,
                 font="Comicy.otf",
                 color="white",
                 stroke_color="black",
@@ -106,7 +109,12 @@ class Video:
         composite = mp.CompositeVideoClip(
             [bg_color, bg_video, content_clip, title_clip]
         )
-        
-        # composite = composite.with_audio(music)
+        if content_clip.audio:
+            music = music.with_effects([mp.afx.MultiplyVolume(0.5)])
+            audio = mp.CompositeAudioClip([content_clip.audio, music])
+        else:
+            audio = music
+        composite = composite.with_audio(audio)
+
         composite = composite.with_duration(duration)
         composite.write_videofile(self.output_path, fps=30, remove_temp=True)
