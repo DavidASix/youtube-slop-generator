@@ -118,3 +118,13 @@ class RedditScraper:
         with open(manifest_path, 'w') as manifest_file:
             json.dump(manifest_content, manifest_file, indent=4)
         print(f'Manifest saved to {manifest_path}')
+
+    @property
+    def manifest(self):
+        project_root = os.path.dirname(os.path.abspath(__file__))
+        build_dir = os.path.join(project_root, 'build/tmp')
+        manifest_path = os.path.join(build_dir, 'manifest.json')
+        if os.path.exists(manifest_path):
+            with open(manifest_path, 'r') as manifest_file:
+                return json.load(manifest_file)
+        return None
