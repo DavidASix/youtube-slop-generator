@@ -58,7 +58,7 @@ class Video:
             mp.VideoFileClip(background_path)
             .resized(height=dimensions["height"])
             .with_position(("center", "center"))
-            .with_opacity(0.8)
+            .with_opacity(0.7)
         )
         bg_start_time = random.uniform(0, bg_video.duration - duration)
         bg_video = bg_video.with_start(-bg_start_time, False)
@@ -67,27 +67,32 @@ class Video:
         if self.content["type"] == "image":
             content_clip = mp.ImageClip(self.content["path"])
         else:
-
             content_clip = mp.VideoFileClip(self.content["path"])
-            print(content_clip.audio)
             duration = min(content_clip.duration * 2, 60)
             content_clip = mp.vfx.Loop().apply(content_clip)
 
+        aspect_ratio = content_clip.w / content_clip.h
+        if aspect_ratio > 3 or aspect_ratio < 1 / 3:
+            raise ValueError("The aspect ratio of the content clip is not supported.")
+
+        if aspect_ratio > 1:
+            content_clip = content_clip.resized(width=dimensions["width"] * 0.90)
+        else:
+            content_clip = content_clip.resized(height=dimensions["height"] * 0.70)
+        vertical_pos = dimensions["height"] - content_clip.h
+        vertical_pos = (
+            vertical_pos - (dimensions["height"] * 0.30)
+            if aspect_ratio > 1
+            else vertical_pos - (dimensions["height"] * 0.025)
+        )
         content_clip = (
-            content_clip.resized(width=dimensions["width"] * 0.92)
-            .with_duration(duration)
+            content_clip.with_duration(duration)
             .with_position("center")
+            .with_position(("center", vertical_pos))
         )
 
-        content_clip = content_clip.with_position(
-            (
-                "center",
-                dimensions["height"] - content_clip.h - (dimensions["height"] * 0.30),
-            )
-        )
-
-        title = "".join(char for char in title if char.isascii())
-        title = f"{title}!"
+        title = "".join(char for char in self.title if char.isascii())
+        title = f"{title.strip()}!"
         title_clip = (
             mp.TextClip(
                 text=title,
