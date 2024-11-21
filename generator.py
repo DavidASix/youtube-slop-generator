@@ -1,11 +1,7 @@
 import os
 import uuid
 import random
-import numpy as np
-
-# Video Generation
 import moviepy as mp
-import re
 
 """
 Video class for generating YouTube shorts content.
@@ -63,7 +59,6 @@ class Video:
         bg_start_time = random.uniform(0, bg_video.duration - duration)
         bg_video = bg_video.with_start(-bg_start_time, False)
 
-        # TODO: Content Clip should be properly sized depending on if it's portrait or landscape
         if self.content["type"] == "image":
             content_clip = mp.ImageClip(self.content["path"])
         else:
