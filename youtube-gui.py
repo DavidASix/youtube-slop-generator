@@ -14,6 +14,7 @@ def is_port_in_use(port):
 def wait(start=4, end=8):
     time.sleep(random.uniform(start, end))
 
+
 """
 Selenium, Pyppter, Playwright, all have ot detection in their browser, so you can't use them to upload videos to youtube.
 
@@ -25,6 +26,8 @@ This class uses your installed chromium browser to upload videos
     - Logged into YouTube in Chromium
     
 """
+
+
 class Uploader:
     def __init__(self):
         # Launch Chromium with remote debugging
@@ -45,7 +48,7 @@ class Uploader:
         self.tab.start()
         self.tab.Page.navigate(url="https://studio.youtube.com")
         # Wait for the page to load
-        wait(2,4)
+        wait(2, 4)
         self.logged_in = (
             "studio.youtube.com"
             in self.tab.Runtime.evaluate(expression="window.location.href")["result"][
@@ -78,60 +81,61 @@ class Uploader:
 
     def upload_flow(self):
         # Click the Create button
-        print('Opening create dropdown')
-        self.dom_action('button.ytcp-button-shape-impl[aria-label="Create"]', 'click()')
-        wait(1, 2)
-        
-        # Click the button to bring up the upload dialog
-        print('Opening upload dialog')
-        self.dom_action('tp-yt-paper-item[test-id="upload-beta"]', 'click()')
+        print("Opening create dropdown")
+        self.dom_action('button.ytcp-button-shape-impl[aria-label="Create"]', "click()")
         wait(1, 2)
 
-        # Set the file upload data 
-        print('Setting file upload data')
+        # Click the button to bring up the upload dialog
+        print("Opening upload dialog")
+        self.dom_action('tp-yt-paper-item[test-id="upload-beta"]', "click()")
+        wait(1, 2)
+
+        # Set the file upload data
+        print("Setting file upload data")
         self.tab.DOM.enable()
         document = self.tab.DOM.getDocument()
         input_node = self.tab.DOM.querySelector(
-            nodeId=document['root']['nodeId'],
-            selector='input[type="file"][name="Filedata"]'
+            nodeId=document["root"]["nodeId"],
+            selector='input[type="file"][name="Filedata"]',
         )
-        
+
         self.tab.DOM.setFileInputFiles(
-            nodeId=input_node['nodeId'],
-            files=[self.file_path]
+            nodeId=input_node["nodeId"], files=[self.file_path]
         )
         # This auto brings you to the next step, video detail entry, but it takes a bit.
-        print('Upload successful, waiting for video details to load')
+        print("Upload successful, waiting for video details to load")
         wait(8, 12)
 
         # Get the x, y screen location of the element
         element_info = self.tab.DOM.querySelector(
-            nodeId=document['root']['nodeId'],
-            selector='div#textbox[contenteditable="true"]'
+            nodeId=document["root"]["nodeId"],
+            selector='div#textbox[contenteditable="true"]',
         )
-        
-        element_box = self.tab.DOM.getBoxModel(nodeId=element_info['nodeId'])
-        x, y = element_box['model']['content'][0], element_box['model']['content'][1]
-        
+
+        element_box = self.tab.DOM.getBoxModel(nodeId=element_info["nodeId"])
+        x, y = element_box["model"]["content"][0], element_box["model"]["content"][1]
+
         # Get the height of the PC's screen and the browser viewport to calculate the title section height
         # This assumes that the browser is maximized
         screen_height = pyautogui.size().height
-        viewport_height = self.tab.Runtime.evaluate(expression="Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0)")["result"]["value"]
+        viewport_height = self.tab.Runtime.evaluate(
+            expression="Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0)"
+        )["result"]["value"]
         title_section_height = screen_height - viewport_height
-        
+
         # Add padding to ensure access of div
         x += 15
         y += title_section_height + 15
-        
+
         print(f"Element location: x={x}, y={y}")
         pyautogui.moveTo(x, y)
         pyautogui.click()
 
-        pyautogui.hotkey('ctrl', 'a')
-        for l in 'Hello World!!':
+        pyautogui.hotkey("ctrl", "a")
+        for l in "Hello World!!":
             pyautogui.press(l)
             wait(0.1, 0.2)
-        
+
     def close_browser(self):
         print("Closing Browser")
         # Kill the chromium instance that (hopefully) we spawned
