@@ -26,11 +26,26 @@ Attributes:
 
 class Video:
     def __init__(self, content):
-        output_dir = os.path.join(os.getcwd(), "build", "output")
+        current_dir = os.getcwd()
+        output_dir = os.path.join(current_dir, "build", "output")
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
         self.content = content
-        self.title = content.get("title")
+        self.tags = []
+
+        for key, value in content.items():
+            setattr(self, key, value)
+
+        self.video_text = f"{self.title.strip()}"
+        self.video_text = "".join(char for char in self.video_text if char.isascii())
+        self.title = f"😂 {self.video_text[:90]} 😂 - Minecraft Memes"
+
+        description_path = os.path.join(current_dir, "build", "description_text.txt")
+        if os.path.exists(description_path):
+            with open(description_path, "r") as file:
+                self.description = file.read().strip()
+        self.description += f"\nReddit: u/{self.author}"
+
         self.uuid = uuid.uuid4()
         self.output_path = os.path.join(output_dir, f"{self.uuid}.mp4")
 
@@ -86,11 +101,9 @@ class Video:
             .with_position(("center", vertical_pos))
         )
 
-        title = "".join(char for char in self.title if char.isascii())
-        title = f"{title.strip()}!"
         title_clip = (
             mp.TextClip(
-                text=title,
+                text=f"{self.video_text}!!",
                 font="Comicy.otf",
                 color="white",
                 stroke_color="black",
