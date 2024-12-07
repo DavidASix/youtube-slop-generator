@@ -17,6 +17,8 @@ def wait(start=4, end=8):
 """
 Selenium, Pyppter, Playwright, all have ot detection in their browser, so you can't use them to upload videos to youtube.
 
+YouTube puts a soft 10 video limit per 24 hours for new accounts. To bypass this, you need to upload ID, a video of yourself (lame), or use the account for months.
+
 This class uses your installed chromium browser to upload videos
 # Pre-requisites
     - Chromium installed
