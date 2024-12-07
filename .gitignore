@@ -145,3 +145,5 @@ scratch.py
 .env
 
 build/tmp
+
+*.pickle
