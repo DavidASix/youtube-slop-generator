@@ -67,7 +67,7 @@ class Uploader:
                 return false;
             }})();
         """
-        print('Attempting to run script', script)
+        print(f"\t\tRunning command {action} on {selector}")
         # Returns true if successful and false if not
         successful = self.tab.Runtime.evaluate(expression=script)
         if not successful:
@@ -76,16 +76,18 @@ class Uploader:
 
     def upload_flow(self):
         # Click the Create button
+        print('Opening create dropdown')
         self.dom_action('button.ytcp-button-shape-impl[aria-label="Create"]', 'click()')
         wait(1, 2)
         
         # Click the button to bring up the upload dialog
+        print('Opening upload dialog')
         self.dom_action('tp-yt-paper-item[test-id="upload-beta"]', 'click()')
         wait(1, 2)
 
         # Set the file upload data 
+        print('Setting file upload data')
         self.tab.DOM.enable()
-        
         document = self.tab.DOM.getDocument()
         input_node = self.tab.DOM.querySelector(
             nodeId=document['root']['nodeId'],
@@ -97,14 +99,8 @@ class Uploader:
             files=[self.file_path]
         )
         # This auto brings you to the next step, video detail entry, but it takes a bit.
+        print('Upload successful, waiting for video details to load')
         wait(8, 12)
-        
-        # Set the title value./
-        self.dom_action('div#textbox[contenteditable="true"]', 'click()')
-        pyautogui.write("Hello World", interval=0.1)
-        
-        # Set the description value
-        self.dom_action('div#textbox[aria-label="Tell viewers about your video (type @ to mention a channel)"]', f'innerText = "{self.title}"')
         
     def close_browser(self):
         print("Closing Browser")
