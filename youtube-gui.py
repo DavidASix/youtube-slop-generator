@@ -101,6 +101,34 @@ class Uploader:
         # This auto brings you to the next step, video detail entry, but it takes a bit.
         print('Upload successful, waiting for video details to load')
         wait(8, 12)
+
+        # Get the x, y screen location of the element
+        element_info = self.tab.DOM.querySelector(
+            nodeId=document['root']['nodeId'],
+            selector='div#textbox[contenteditable="true"]'
+        )
+        
+        element_box = self.tab.DOM.getBoxModel(nodeId=element_info['nodeId'])
+        x, y = element_box['model']['content'][0], element_box['model']['content'][1]
+        
+        # Get the height of the PC's screen and the browser viewport to calculate the title section height
+        # This assumes that the browser is maximized
+        screen_height = pyautogui.size().height
+        viewport_height = self.tab.Runtime.evaluate(expression="Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0)")["result"]["value"]
+        title_section_height = screen_height - viewport_height
+        
+        # Add padding to ensure access of div
+        x += 15
+        y += title_section_height + 15
+        
+        print(f"Element location: x={x}, y={y}")
+        pyautogui.moveTo(x, y)
+        pyautogui.click()
+
+        pyautogui.hotkey('ctrl', 'a')
+        for l in 'Hello World!!':
+            pyautogui.press(l)
+            wait(0.1, 0.2)
         
     def close_browser(self):
         print("Closing Browser")
